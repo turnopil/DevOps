@@ -32,14 +32,26 @@ DATABASE_PASS=$(grep 'temporary password' /var/log/mysqld.log|cut -d ":" -f 4|cu
 # echo $DATABASE_PASS
 
 # Secure_installation_script automation mysql 5.7
-echo "Secure_installation_script automation"
+echo "Secure_installation_script automation (for MySQL 5.6 only)"
 # sudo service mysqld stop
+sqlversion=5.6
+sqlversioncurrent=$(mysql --version|awk '{ print $5 }'|awk -F\.21, '{ print $1 }')
+#set psswrd for sql
 mysqladmin --user=root --password="$DATABASE_PASS" password "$DATABASE_PASS"
-# mysql -u root -p"$DATABASE_PASS" -e "UPDATE mysql.user SET Password=PASSWORD(mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"'$DATABASE_PASS') WHERE User='root'"
-mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User=''"
-mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
-mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
+#get --version
+if [ "$sqlversioncurrent" = "$sqlversion" ]
+	then
+		# mysql -u root -p"$DATABASE_PASS" -e "UPDATE mysql.user SET Password=PASSWORD(mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"'$DATABASE_PASS') WHERE User='root'"
+	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User=''"
+	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+	mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
+	#echo $sqlversioncurrent
+	#echo "NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+else
+	mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
+	echo "MySQL version > 5.6"
+fi
 
 # Create DB
 echo "Creating databese: tmw and user: tmw"
