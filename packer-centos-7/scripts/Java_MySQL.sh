@@ -40,9 +40,10 @@ echo "Installing & configuring Java...Please wait 5-10 minutes"
 	#http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.rpm
 	#mkdir /opt/java_jdk
 	echo "Extracting JDK package..."
-	rpm -ivh jdk-8u161-linux-x64.rpm
+	rpm -ivh jdk-8u161-linux-x64.rpm > /dev/null 2>&1
+	rm jdk-8u161-linux-x64.rpm
 	#tar zxvf java.tar.gz -C /opt/java_jdk --strip-components=1 
-	#rm java.tar.gz
+	
 	echo "Updating alternatives..."
 	update-alternatives --install "/usr/bin/java" "java" "/usr/java/jdk1.8.0_161/bin/java" 0
 	update-alternatives --install "/usr/bin/jar" "jar" "/usr/java/jdk1.8.0_161/bin/jar" 0
@@ -55,21 +56,22 @@ echo "Java config complete!"
 
 # Set JAVA $HOME directory 
 echo "Creating file app.sh"
-echo "export JAVA_HOME=/usr/java/jdk1.8.0_161" > /etc/profile.d/app.sh
-echo "export JRE_HOME=/usr/java/jdk1.8.0_161/jre" >> /etc/profile.d/app.sh
-echo "export PATH=$JAVA_HOME"/bin":$PATH" >> /etc/profile.d/app.sh
-source /etc/profile.d/app.sh
+echo 'export JAVA_HOME=/usr/java/jdk1.8.0_161' > /etc/profile.d/app.sh
+echo 'export JRE_HOME=/usr/java/jdk1.8.0_161/jre' >> /etc/profile.d/app.sh
+echo 'export MAVEN_HOME=/usr/apache-maven-3.5.2/' >> /etc/profile.d/app.sh
+echo 'export CATALINA_HOME=/usr/apache-tomcat-7.0.84' >> /etc/profile.d/app.sh
+echo -e 'export PATH=$JAVA_HOME"/bin":$MAVEN_HOME"/bin":$CATALINA_HOME"/bin":$PATH' >> /etc/profile.d/app.sh
+
 # export MAVEN_HOME=/usr/local/apache-maven-3.5.2
 
-# Maven section
-echo "Maven Installing..."
-yum install -y maven > /dev/null 2>&1
+#Tomcat section
+echo "Tomcat Installing..."
+cd /usr
+wget http://apache.ip-connect.vn.ua/tomcat/tomcat-7/v7.0.84/bin/apache-tomcat-7.0.84.tar.gz > /dev/null 2>&1
+tar zxvf apache-tomcat-7.0.84.tar.gz > /dev/null 2>&1
+rm apache-tomcat-7.0.84.tar.gz
+chmod -R 755 /usr/apache-tomcat-7.0.84
 
-# Install & start MySQL
-echo "Installing & configuring MySQL..."
-wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm  > /dev/null 2>&1
-rpm -ivh mysql57-community-release-el7-11.noarch.rpm 
-yum install -y mysql-server --nogpgcheck > /dev/null 2>&1
-rm mysql57-community-release-el7-11.noarch.rpm
+source /etc/profile.d/app.sh
 
 echo "Done!"
