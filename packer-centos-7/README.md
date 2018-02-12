@@ -13,7 +13,8 @@ The example can be modified to use more Ansible roles, plays, and included playb
 
 The following software must be installed/present on your local machine before you can use Packer to build the Vagrant box file:
 
-  - [Packer](http://www.packer.io/)
+  - [Packer](http://www.packer.io/) 
+  - [HowToInstallPacker](https://www.digitalocean.com/community/tutorials/how-to-create-digitalocean-snapshots-using-packer-on-centos-7)
   - [Vagrant](http://vagrantup.com/)
   - [VirtualBox](https://www.virtualbox.org/) (if you want to build the VirtualBox box)
   - [VMware Fusion](http://www.vmware.com/products/fusion/) (or Workstation - if you want to build the VMware box)
@@ -23,15 +24,15 @@ The following software must be installed/present on your local machine before yo
 
 Make sure all the required software (listed above) is installed, then cd to the directory containing this README.md file, and run:
 
-    $ packer build centos7.json
+    $ packer.io build centos7.json
 
 After a few minutes, Packer should tell you the box was generated successfully.
 
 If you want to only build a box for one of the supported virtualization platforms (e.g. only build the VMware box), add `--only=vmware-iso` to the `packer build` command:
 
-    $ packer build --only=vmware-iso centos7.json
+    $ packer.io build --only=vmware-iso centos7.json
     
-    $ packer build --only=virtualbox-iso centos7.json
+    $ packer.io build --only=virtualbox-iso centos7.json
 
 ## Testing built boxes
 
