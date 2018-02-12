@@ -34,23 +34,23 @@ DATABASE_PASS=$(grep 'temporary password' /var/log/mysqld.log|cut -d ":" -f 4|cu
 # Secure_installation_script automation mysql 5.7
 echo "Secure_installation_script automation (for MySQL 5.6 only)"
 # sudo service mysqld stop
-sqlversion=5.6
-sqlversioncurrent=$(mysql --version|awk '{ print $5 }'|awk -F\.21, '{ print $1 }')
-#set psswrd for sql
+SqlVersion=5.7
+SqlVersionCurrent=$(mysql --version|awk '{ print $5 }'|awk -F\.21, '{ print $1 }')
+# set passwrd to mysql
 mysqladmin --user=root --password="$DATABASE_PASS" password "$DATABASE_PASS"
-#get --version
-if [ "$sqlversioncurrent" = "$sqlversion" ]
+
+if [ "$SqlVersionCurrent" = "$SqlVersion" ]
 	then
-		# mysql -u root -p"$DATABASE_PASS" -e "UPDATE mysql.user SET Password=PASSWORD(mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"'$DATABASE_PASS') WHERE User='root'"
+	mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
+	echo "MySQL version > 5.6"	
+else
+# mysql -u root -p"$DATABASE_PASS" -e "UPDATE mysql.user SET Password=PASSWORD(mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"'$DATABASE_PASS') WHERE User='root'"
 	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
 	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User=''"
 	mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
 	mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
-	#echo $sqlversioncurrent
+	#echo $SqlVersionCurrent
 	#echo "NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
-else
-	mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
-	echo "MySQL version > 5.6"
 fi
 
 # Create DB
@@ -74,7 +74,7 @@ mysql -u tmw -p"$DATABASE_PASS" tmw <set_dafault_values.sql
 # Write database login & passwd to application config file
 # Script was stolen from teammate :)
 cd /opt/TaskManagmentWizard-NakedSpring-
-echo `chmod -R 777 .`
+echo `chmod -R 755 .`
 MCONF=src/main/resources/mysql_connection.properties
 sed -i 's/jdbc.username=root/jdbc.username=tmw/g' $MCONF
 sed -i 's/jdbc.password=root/jdbc.password='$DATABASE_PASS'/g' $MCONF
