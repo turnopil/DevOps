@@ -36,8 +36,24 @@ Vagrant.configure("2") do |config|
       v.cpus = 1
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--ioapic", "on"]
-    end  
-    
+    end
+
+  end
+  # Jenkins
+  # `vagrant up Jenkins --provider=virtualbox`
+  config.vm.define "jenkins" do |jenkins|
+#    web.vm.hostname = "Jenkins"
+     jenkins.vm.box = "file://builds/Jenkins.box"
+     jenkins.vm.network :private_network, ip: "192.168.56.208"
+
+    config.vm.provider :jenkins do |v|
+      v.gui = true
+      v.memory = 1024
+      v.cpus = 1
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
   end
   
   # VirtualBox.
@@ -54,8 +70,7 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--ioapic", "on"]
     end
-
+    
+  end  
 # config.vm.provision "shell", path: "scenario.sh"
-  end
-
 end
