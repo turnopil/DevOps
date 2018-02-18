@@ -67,10 +67,10 @@ echo -e 'export PATH=$JAVA_HOME"/bin":$MAVEN_HOME"/bin":$CATALINA_HOME"/bin":$PA
 #Tomcat section
 echo "Tomcat Installing..."
 cd /usr
-wget http://apache.ip-connect.vn.ua/tomcat/tomcat-7/v7.0.84/bin/apache-tomcat-7.0.84.tar.gz > /dev/null 2>&1
-tar zxvf apache-tomcat-7.0.84.tar.gz > /dev/null 2>&1
-rm apache-tomcat-7.0.84.tar.gz
-chmod -R 755 /usr/apache-tomcat-7.0.84
+wget http://apache.ip-connect.vn.ua/tomcat/tomcat-7/v7.0.85/bin/apache-tomcat-7.0.85.tar.gz > /dev/null 2>&1
+tar zxvf apache-tomcat-7.0.85.tar.gz > /dev/null 2>&1
+rm apache-tomcat-7.0.85.tar.gz
+chmod -R 755 /usr/apache-tomcat-7.0.85
 
 source /etc/profile.d/app.sh
 
