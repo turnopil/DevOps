@@ -15,6 +15,9 @@ else
 fi
 
 CWD=`pwd`
+
+# cli.jar download 
+wget http://localhost:8080/jnlpJars/jenkins-cli.jar
 # Start the Jenkins service
 chkconfig jenkins on
 service jenkins restart
@@ -83,12 +86,12 @@ cd $CWD
 
 # Jenkins 8080 port add
 # Restart Firewalld service
-systemctl enable firewalld
+#systemctl enable firewalld
 systemctl start firewalld
 firewall-cmd --zone=public --add-port=8080/tcp --permanent
 firewall-cmd --zone=public --add-service=http --permanent
 firewall-cmd --reload
-firewall-cmd --list-all 
+#firewall-cmd --list-all 
 
 # Let's start Jenkins
 java -jar jenkins-cli.jar -s http://localhost:8080 safe-restart
