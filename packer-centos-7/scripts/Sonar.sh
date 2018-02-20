@@ -64,4 +64,12 @@ echo 'export JRE_HOME=/usr/java/jdk1.8.0_161/jre' >> /etc/profile.d/app.sh
 echo -e 'export PATH=$JAVA_HOME"/bin":$PATH' >> /etc/profile.d/app.sh
 source /etc/profile.d/app.sh
 
+# Maven section
+echo "Sonarqube Installing..."
+cd /opt
+wget https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-6.7.1.zip > /dev/null 2>&1
+unzip sonarqube-6.7.1.zip > /dev/null 2>&1
+mv /opt/sonarqube-6.7.1 /opt/sonarqube
+rm sonarqube-6.7.1.zip
+
 echo "Done!"
