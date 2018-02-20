@@ -23,29 +23,13 @@ Vagrant.configure("2") do |config|
   #  config.vm.provision "shell", inline: "echo Hello, World"
   #end
 
-  # MySql.
-  # `vagrant up mysql --provider=virtualbox`
-  config.vm.define "mysql" do |mysql|
-     mysql.vm.hostname = "mysql.dev"
-     mysql.vm.box = "file://builds/MySQL.box"
-     mysql.vm.network :private_network, ip: "192.168.56.200"
-  #  mysql.vm.provision "shell", path: "scenario_MySql.sh"
-    config.vm.provider :mysql do |v|
-      v.gui = true
-      v.memory = 1024
-      v.cpus = 1
-      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--ioapic", "on"]
-    end
-  end
-
   # web.
   # `vagrant up web --provider=virtualbox`
   config.vm.define "web" do |web|
-     web.vm.hostname = "app.dev"
-     web.vm.box = "file://builds/Tomcat.box"
-     web.vm.network :private_network, ip: "192.168.56.210"
-  #  web.vm.provision "shell", path: "scenario_Tomcat.sh"
+#     web.vm.hostname = "web"
+     web.vm.box = "file://builds/web.box"
+     web.vm.network :private_network, ip: "192.168.56.223"
+
     config.vm.provider :web do |v|
       v.gui = true
       v.memory = 1024
@@ -53,38 +37,40 @@ Vagrant.configure("2") do |config|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--ioapic", "on"]
     end
+
   end
-  
   # Jenkins
   # `vagrant up Jenkins --provider=virtualbox`
   config.vm.define "jenkins" do |jenkins|
-     jenkins.vm.hostname = "jenkins.dev"
+#    web.vm.hostname = "Jenkins"
      jenkins.vm.box = "file://builds/Jenkins.box"
-     jenkins.vm.network :private_network, ip: "192.168.56.220"
-  #  jenkins.vm.provision "shell", path: "scenario_jenkins.sh"
+     jenkins.vm.network :private_network, ip: "192.168.56.208"
+
     config.vm.provider :jenkins do |v|
       v.gui = true
       v.memory = 1024
       v.cpus = 1
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--ioapic", "on"] 
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
     end
+
   end
   
-  # GitLab Server.
+  # VirtualBox.
   # `vagrant up virtualbox --provider=virtualbox`
   config.vm.define "virtualbox" do |virtualbox|
-     virtualbox.vm.hostname = "giitlab.dev.com"
-     virtualbox.vm.box = "file://builds/virtualbox-centos7.box"
-     virtualbox.vm.network :private_network, ip: "192.168.56.223"
-  #  virtualbox.vm.provision "shell", path: "scenario.sh"
+    #virtualbox.vm.hostname = "virtualbox-centos7"
+    virtualbox.vm.box = "file://builds/virtualbox-centos7.box"
+    virtualbox.vm.network :private_network, ip: "192.168.56.222"
+
     config.vm.provider :virtualbox do |v|
       v.gui = true
       v.memory = 1024
       v.cpus = 1
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      v.customize ["modifyvm", :id, "--ioapic", "on"]  
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
     end
+    
   end  
 # config.vm.provision "shell", path: "scenario.sh"
 end
