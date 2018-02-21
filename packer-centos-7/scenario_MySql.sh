@@ -76,9 +76,9 @@ mysql -u root -p"$DATABASE_PASS" bugtrckr < data-dump.sql
 # Add tcp 3306 port to firewall
 echo "Allow 3306 port"
 # Restart Firewalld service
-systemctl enable firewalld
+#systemctl enable firewalld
 systemctl start firewalld
 firewall-cmd --zone=public --add-port=3306/tcp --permanent
-firewall-cmd --zone=public --add-service=http --permanent
+#firewall-cmd --zone=public --add-service=http --permanent
 firewall-cmd --reload
-firewall-cmd --list-all
+#firewall-cmd --list-all

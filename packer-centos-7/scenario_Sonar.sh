@@ -40,7 +40,7 @@ ulimit -u 2048
 echo "vm.max_map_count = 262144">>/etc/sysctl.conf
 echo "fs.file-max = 65536">>/etc/sysctl.conf
 
-#setup sonar as service
+# Setup sonar as service
 cat>/etc/systemd/system/sonar.service<<EOF
 echo"
 [Unit]

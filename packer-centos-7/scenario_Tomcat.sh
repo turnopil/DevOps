@@ -33,11 +33,11 @@ $CATALINA_HOME/bin/startup.sh
 # Add tcp 80 port to firewall
 echo "Allow 80 port"
 # Restart Firewalld service
-systemctl enable firewalld
+#systemctl enable firewalld
 systemctl start firewalld
 firewall-cmd --zone=public --add-port=80/tcp --permanent
 firewall-cmd --zone=public --add-service=http --permanent
 firewall-cmd --reload
-firewall-cmd --list-all
+#firewall-cmd --list-all
 
 echo "Done!"
