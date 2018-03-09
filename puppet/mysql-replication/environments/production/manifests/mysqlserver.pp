@@ -10,7 +10,7 @@ class profiles::mysqlserver (
   $socket                 = "/var/lib/mysql/mysql.sock", # can also be defined under override option
   $bind_address           = "0.0.0.0",  # can also be defined under override option
   $log_error              = "/var/log/mysqld.log",  # required for proper MySQL installation
-#  $explicit_defaults_for_timestamp = 1, # To avoid "TIMESTAMP with implicit DEFAULT value is deprecated." error on 5.6
+# $explicit_defaults_for_timestamp = 1, # To avoid "TIMESTAMP with implicit DEFAULT value is deprecated." error on 5.6
   $dbs                    = {},    # Hash of Array for mysql::db
   $community_release      = true, # Set to true to use community edition
   $community_major_v      = '5',   # If using community what is the major version
@@ -54,24 +54,16 @@ class profiles::mysqlserver (
     }
   }
   else {
-  #$url_repo = "http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm"
-  	#https://rpms.southbridge.ru/rhel7/mysql-5.7/x86_64/mysql-community-server-5.7.16-1.el7.x86_64.rpm
-  	#$url_repo = "https://rpms.southbridge.ru/rhel7/mysql-${community_major_v}.${community_minor_v}/x86_64/mysql-community-server-${community_major_v}.${community_minor_v}.16-1.el${community_minor_v}.x86_64.rpm"
-    $url_repo = "http://dev.mysql.com/get/mysql${community_major_v}${community_minor_v}-community-release-el${::facts['os']['release']['major']}-${community_minor_v}.noarch.rpm"
+    # $url_repo = "http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm"
+  	  $url_repo = "http://dev.mysql.com/get/mysql${community_major_v}${community_minor_v}-community-release-el${::facts['os']['release']['major']}-${community_minor_v}.noarch.rpm"
       package { 'mysql-community-repo':
       name      => "mysql-community-server-${community_major_v}.${community_minor_v}.16-1.el${community_minor_v}.x86_64",
-      #name      => "mysql${community_major_v}${community_minor_v}-community-release",
+    # name      => "mysql${community_major_v}${community_minor_v}-community-release",
       ensure    => installed,
       provider  => rpm,
       source    => $url_repo,
     }
-    #  package { 'mysql-community-server':
-    #  ensure => 'installed'
-    #  }
-    # sudo yum install mysql-community-server
-    # Note: 
-    # Installing mysql-community-server will install all the needed packages
-    # for MySQL server mysql-community-server, mysql-community-client, mysql-community-common and mysql-community-libs
+    
     class { '::mysql::server':
       root_password           => $root_password,
       override_options        => $full_override_options,
