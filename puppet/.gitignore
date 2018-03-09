@@ -1,4 +1,5 @@
 puppet/environments/production/modules
+environments/production/modules
 demo.sql
 data-dump.sql
 *.box
