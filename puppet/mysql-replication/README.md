@@ -33,7 +33,7 @@ Run the following command on the client machine to test it.
 	sudo /opt/puppetlabs/bin/puppet agent --test
 
 #### On Mysql Master
-# Import settings from application to MySQL database
+Import settings from application to MySQL database
 
 	mysql -u root -p"$DATABASE_PASS"
 	mysql> USE bugtrckr;
