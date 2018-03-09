@@ -1,0 +1,87 @@
+## Mysql Master-Slave replication with Puppet
+To run the demo in vagrant, run
+
+	./deps.sh   # clone the mysql puppet module
+	vagrant up  # provision the two nodes with vagrant
+
+to configure your `mysqlmaster` and `mysqlslave` nodes, then follow the steps below
+to get replication running between them.
+	
+
+- [Puppet for `mysqlmaster`]
+- [Puppet for `mysqlslave`]
+
+
+#### On Mysql Master
+Make sure database is locked down, take note of the bin log `File` and `Position`, and take an export.
+
+	vagrant ssh mysqlmaster
+
+	$ mysql -u root -pchangeme
+	mysql> SLAVE STOP;
+	mysql> FLUSH TABLES WITH READ LOCK;
+
+	mysql> SHOW MASTER STATUS;
+	+------------------+----------+--------------+------------------+
+	| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+	+------------------+----------+--------------+------------------+
+	| mysql-bin.000002 |     1467 | demo         |                  |
+	+------------------+----------+--------------+------------------+
+
+	mysql> EXIT;
+
+	$ mysqldump -u root -pchangeme --opt demo > /vagrant/demo.sql
+	$ mysql -u root -pchangeme
+	
+	mysql> UNLOCK TABLES;
+	
+#### On Mysql Slave
+Import the export just taken from the master, configure the slave with:
+
+- The mysql master host ip (`172.10.10.10`)
+- The user created in puppet (`slave_user`)
+- And the bin log position info (`mysql-bin.000002` / `1467`)
+
+<!-- clear -->
+
+
+	vagrant ssh mysqlslave
+	
+	$ mysql -u root -pchangeme demo < /vagrant/demo.sql
+	$ mysql -u root -pchangeme
+	mysql> CHANGE MASTER TO MASTER_HOST='172.10.10.10', \
+	  MASTER_USER='slave_user', MASTER_PASSWORD='changeme', \
+	  MASTER_LOG_FILE='mysql-bin.000002', MASTER_LOG_POS=1467;
+	mysql> START SLAVE;
+	mysql> SHOW SLAVE STATUS\G
+
+
+### Verify Replication
+
+That's it! continue on to create a new table on the master node, insert a record, and see it show up on the slave.
+
+#### On Mysql Master
+	
+	vagrant ssh mysqlmaster
+	
+	$ mysql -u root -pchangeme
+	
+	mysql USE demo;
+	mysql> CREATE TABLE IF NOT EXISTS Content ( msg VARCHAR(255) ) ENGINE=InnoDB;
+	mysql> INSERT INTO Content (`msg`) VALUES ('hello world');
+	
+	
+#### On Mysql Slave
+
+	vagrant ssh mysqlslave
+	
+	$ mysql -u root -pchangeme
+	mysql> USE demo;
+	mysql> SELECT * FROM Content;
+	+-------------+
+	| msg         |
+	+-------------+
+	| hello world |
+	+-------------+
+
+

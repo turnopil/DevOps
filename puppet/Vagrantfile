@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "file://builds/base.box"
+  config.ssh.insert_key = false
+  config.vm.synced_folder '.', '/vagrant'
+  #for nfs do: apt-get install nfs-kernel-server
+
+  # puppetmaster.
+  # `vagrant up puppetmaster`
+  config.vm.define "puppetmaster" do |puppetmaster|
+     puppetmaster.vm.hostname = "puppetmaster.dev"
+     puppetmaster.vm.network :private_network, ip: "172.10.10.10"
+     puppetmaster.vm.provision "shell", path: "master.sh"
+    config.vm.provider "virtualbox" do |v|
+      v.gui = false
+      v.memory = 1024
+      v.cpus = 1
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+  end
+  # mysqlmaster
+  # `vagrant up mysqlmaster`
+  config.vm.define "mysqlmaster" do |mysqlmaster|
+     mysqlmaster.vm.hostname = "mysqlmaster.dev"
+     mysqlmaster.vm.network :private_network, ip: "172.10.20.10"
+     mysqlmaster.vm.provision "shell", path: "client.sh" 
+    config.vm.provider "virtualbox" do |v|
+      v.gui = false
+      v.memory = 512
+      v.cpus = 1
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+  end
+# mysqlslave
+  # `vagrant up mysqlslave`
+  config.vm.define "mysqlslave" do |mysqlslave|
+     mysqlslave.vm.hostname = "mysqlslave.dev"
+     mysqlslave.vm.network :private_network, ip: "172.10.30.10"
+     mysqlslave.vm.provision "shell", path: "client.sh"  
+    config.vm.provider "virtualbox" do |v|
+      v.gui = false
+      v.memory = 512
+      v.cpus = 1
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+  end
+    
+# config.vm.provision "shell", path: "scenario.sh"
+end

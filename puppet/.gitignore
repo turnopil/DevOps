@@ -1,0 +1,7 @@
+puppet/environments/production/modules
+demo.sql
+data-dump.sql
+*.box
+iso/*
+.vagrant/*
+

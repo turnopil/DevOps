@@ -1,0 +1,33 @@
+---
+profiles::mysqlserver::root_password    : 'a8+?treAvpDa'
+profiles::mysqlserver::community_release: true
+profiles::mysqlserver::is_master        : true
+profiles::mysqlserver::bind_address     : '0.0.0.0'
+profiles::mysqlserver::slaves_ips       :
+  - "172.10.30.10"
+profiles::mysqlserver::is_slave         : false
+profiles::mysqlserver::master_ip        : "172.10.20.10"
+profiles::mysqlserver::override_options :
+  'mysqld'                              :
+    'server-id'                         : '1'
+    'log-bin'                           : "mysql-bin"
+    'binlog-ignore-db'                  :
+      - 'test'
+      - 'information_schema'
+    'replicate-ignore-db'               :
+      - 'test'
+      - 'information_schema'
+    'relay-log'                         : "mysql-relay-log"
+    #By setting the auto_increment_increment and auto_increment_offset values independent servers
+    #will create unique auto_increment values allowing for replication without fear of collision!
+    #Note that auto_increment_increment is set to the total number of nodes in this multi-master
+    'auto-increment-increment'          : '2'
+    'auto-increment-offset'             : '1'
+profiles::mysqlserver::dbs:
+  'bugtrckr':
+    'user'                      : 'bugtrckr'
+    'password'                  : 'a8+?treAvpDa'
+    'host'                      : 'localhost'
+    'grant'                     :
+      - 'SELECT'
+      - 'UPDATE'
