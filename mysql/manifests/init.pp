@@ -10,5 +10,5 @@ class mysql {
   include mysql::install
   include mysql::configure
   include mysql::service
-  include mysql::database
+  include mysql::rootpass
 }

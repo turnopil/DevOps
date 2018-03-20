@@ -15,11 +15,11 @@ define mysql::users(
 )
 {
 include mysql
-$r_pass = $mysql::database::root_pass
+$r_pass = $mysql::rootpass::root_pass
 Exec {
     path => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
 }
-exec { 'mysql_${user}_create':
+exec {"${user}":
   command => "mysql -u root -p'${r_pass}' -e \"GRANT ${grant} ON ${table}.* TO \'${user}\'@\'${host}\' IDENTIFIED BY \'${user_pass}\';FLUSH PRIVILEGES;\"",
   unless  => "mysql -u root -p'${r_pass}' -e \"SELECT * FROM mysql.user;\" | grep ${user}",
   require => Package['mysql-community-server'],
