@@ -8,11 +8,8 @@
 #   mysql::db { 'namevar': }
 define mysql::db(
   String $database,
-  String $table,
-  String $user,
-  String $user_pass,
-  String $host,
-  String $grant,
+  String $charset,
+  String $collate, 
 )
 {
 include mysql
@@ -21,13 +18,11 @@ Exec {
     path => '/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin',
 }
 exec { 'mysql_${database}_create':
-  command => "mysql -u root -p'${r_pass}' -e \"CREATE DATABASE ${database};\"",
+  command => "mysql -u root -p'${r_pass}' -e \"CREATE DATABASE ${database} DEFAULT CHARSET = ${charset} COLLATE = ${collate};\"",
   unless  => "mysql -u root -p'${r_pass}' -e \"SHOW DATABASES;\" | grep ${database}",
   require => [Package['mysql-community-server'], Exec['install_pass']],
 }
-exec { 'mysql_${user}_create':
-  command => "mysql -u root -p'${r_pass}' -e \"GRANT ${grant} ON ${table}.* TO \'${user}\'@\'${host}\' IDENTIFIED BY \'${pass}\';FLUSH PRIVILEGES;\"",
-  unless  => "mysql -u root -p'${r_pass}' -e \"SELECT * FROM mysql.user;\" | grep ${user}",
-  require => [Package['mysql-community-server'], Exec['mysql_${database}_create']],
+
 }
-}
+
+#mysql -u root -p"$DATABASE_PASS" -e "CREATE DATABASE bugtrckr DEFAULT CHARSET = utf8 COLLATE = utf8_unicode_ci;"
