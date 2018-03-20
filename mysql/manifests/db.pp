@@ -28,6 +28,6 @@ exec { 'mysql_${database}_create':
 exec { 'mysql_${user}_create':
   command => "mysql -u root -p'${r_pass}' -e \"GRANT ${grant} ON ${table}.* TO \'${user}\'@\'${host}\' IDENTIFIED BY \'${pass}\';FLUSH PRIVILEGES;\"",
   unless  => "mysql -u root -p'${r_pass}' -e \"SELECT * FROM mysql.user;\" | grep ${user}",
-  require => [Package['mysql-community-server'], Exec['mysql_database_create']],
+  require => [Package['mysql-community-server'], Exec['mysql_${database}_create']],
 }
 }
