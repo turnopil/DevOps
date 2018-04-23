@@ -1,0 +1,7 @@
+package_list:
+- apache2
+- default-jdk
+- authbind
+
+
+

@@ -1,0 +1,15 @@
+- hosts: all
+ # become: yes
+  #user: ubuntu
+#  remote_user: root
+  become: yes
+  #become: true
+  #become_user: root
+  #become_method: sudo
+  #become_user: root
+  vars_files:
+   - variables.yml
+ 
+  roles:
+  - role: apache-tomcat
+#  - { role: apache-tomcat, become: yes }
