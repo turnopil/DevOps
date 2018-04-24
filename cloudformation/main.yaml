@@ -1,0 +1,228 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  License: Apache-2.0
+Description: 'AWS CloudFormation Template AutoScalingMultiAZWithNotifications:
+  Create a multi-az, load balanced and Auto Scaled sample web site running on an Apache
+  Web Server. The application is configured to span all Availability Zones in the
+  region and is Auto-Scaled based on the CPU utilization of the web servers. The instances are
+  load balanced with a simple health check against the default web page. **WARNING**
+  This template creates one or more Amazon EC2 instances and an Elastic Load Balancer.
+  You will be billed for the AWS resources used if you create a stack from this template.'
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: My
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t2.medium
+    AllowedValues: [t1.micro, t2.nano, t2.micro, t2.small, t2.medium, t2.large]
+    ConstraintDescription: must be a valid EC2 instance type.
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+Resources:
+  ApacheASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      AvailabilityZones:
+        - us-east-1a
+        - us-east-1b
+        - us-east-1c
+      Cooldown: '300'
+      DesiredCapacity: '3'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: ELB
+      MaxSize: '5'
+      MinSize: '3'
+      LaunchConfigurationName: !Ref 'LaunchConfig'
+      LoadBalancerNames:
+        - !Ref 'ApacheELB'
+      Tags:
+        - Key: Name
+          Value: apachetomcat
+          PropagateAtLaunch: true
+      TerminationPolicies:
+        - Default
+  LaunchConfig:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Properties:
+      ImageId: ami-36c61849
+      InstanceType: !Ref 'InstanceType'
+      KeyName: !Ref 'KeyName'
+      InstanceMonitoring: 'true'
+      SecurityGroups:
+        - !Ref 'ApacheSecurity'
+  scalingapachecpudown:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      Cooldown: '300'
+      PolicyType: SimpleScaling
+      ScalingAdjustment: -1
+      AutoScalingGroupName: !Ref 'ApacheASG'
+  scalingapachecpuup:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      Cooldown: '300'
+      PolicyType: SimpleScaling
+      ScalingAdjustment: 1
+      AutoScalingGroupName: !Ref 'ApacheASG'
+  scalingapachememorydown:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      Cooldown: '300'
+      PolicyType: SimpleScaling
+      ScalingAdjustment: -1
+      AutoScalingGroupName: !Ref 'ApacheASG'
+  scalingapachememoryup:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      Cooldown: '300'
+      PolicyType: SimpleScaling
+      ScalingAdjustment: 1
+      AutoScalingGroupName: !Ref 'ApacheASG'
+  alarmcpualarmdown:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      ActionsEnabled: 'true'
+      ComparisonOperator: LessThanOrEqualToThreshold
+      EvaluationPeriods: '2'
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Period: '120'
+      Statistic: Average
+      Threshold: '20.0'
+      AlarmActions:
+        - !Ref 'scalingapachecpudown'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'ApacheASG'
+  alarmcpualarmup:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      ActionsEnabled: 'true'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: '2'
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Period: '120'
+      Statistic: Average
+      Threshold: '80.0'
+      AlarmActions:
+        - !Ref 'scalingapachecpuup'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'ApacheASG'
+  alarmmemoryalarmdown:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      ActionsEnabled: 'true'
+      ComparisonOperator: LessThanOrEqualToThreshold
+      EvaluationPeriods: '2'
+      MetricName: MemoryUtilization
+      Namespace: AWS/EC2
+      Period: '120'
+      Statistic: Average
+      Threshold: '20.0'
+      AlarmActions:
+        - !Ref 'scalingapachememorydown'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'ApacheASG'
+  alarmmemoryalarmup:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      ActionsEnabled: 'true'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: '2'
+      MetricName: MemoryUtilization
+      Namespace: AWS/EC2
+      Period: '120'
+      Statistic: Average
+      Threshold: '80.0'
+      AlarmActions:
+        - !Ref 'scalingapachememoryup'
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref 'ApacheASG'
+  ApacheELB:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      AvailabilityZones:         
+        - us-east-1a
+        - us-east-1b
+        - us-east-1c
+      CrossZone: true
+      HealthCheck:
+        HealthyThreshold: '8'
+        Interval: '150'
+        Target: 'TCP:80'
+        Timeout: '15'
+        UnhealthyThreshold: '3'
+      ConnectionDrainingPolicy:
+        Enabled: 'true'
+        Timeout: '300'
+      ConnectionSettings:
+        IdleTimeout: '60'
+      SecurityGroups:
+        - !Ref 'ELBSecurity'
+      Listeners:
+        - InstancePort: '80'
+          LoadBalancerPort: '80'
+          Protocol: HTTP
+          InstanceProtocol: HTTP
+  ApacheSecurity:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:      
+      GroupDescription: Allow incoming HTTP connections.
+      VpcId: vpc-20d89b5b
+      Tags:
+        - Key: Name
+          Value: ApacheTomcat
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref 'SSHLocation'
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        SourceSecurityGroupId: !Ref 'ELBSecurity'
+        SourceSecurityGroupOwnerId: '992487478633'
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        SourceSecurityGroupId: !Ref 'ELBSecurity'
+        SourceSecurityGroupOwnerId: '992487478633'
+  ELBSecurity:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: ApacheELBSG
+      VpcId: vpc-20d89b5b
+      Tags:
+        - Key: Name
+          Value: ELBApache
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+Outputs:
+  URL:
+    Description: The URL of the website
+    Value: !Join ['', ['http://', !GetAtt [ApacheELB, DNSName],'/BugTrckr-0.5.0-SNAPSHOT']]
